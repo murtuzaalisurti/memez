@@ -1,24 +1,53 @@
-import logo from './logo.svg';
-import './App.css';
+import { useEffect, useState } from "react";
 
 function App() {
+
+  const [meme, setMeme] = useState({});
+
+  const [isLoading, setIsLoading] = useState(false);
+
+  function getMeme() {
+    setIsLoading(true);
+    fetch('https://meme-api.herokuapp.com/gimme').then((res) => {
+      return res.json();
+    }).then((data) => {
+      setIsLoading(false)
+      if(data.nsfw) {
+        getMeme();
+      } else {
+        console.log(data);
+        setMeme((prev) => {
+          return data;
+        })
+      }
+    }).catch((err) => {
+      console.error(err);
+    })
+  }
+
+  useEffect(() => {
+    getMeme();
+  }, [])
+
+  function handleClick(e) {
+    e.target.classList.contains('generate-btn') && getMeme();
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+
+      <div className="meme-generator-title">
+        Meme Generator
+      </div>
+
+      <div className="meme-container">
+        {meme.url === null || meme.url === undefined ? <i className={"fa-solid fa-rotate loading"}></i> : <img className="meme" src={meme.url} alt="meme" />}
+      </div>
+
+      <div className="generate">
+        <button className="btn generate-btn" onClick={handleClick}>Generate <i className={`fa-solid fa-rotate ${isLoading && 'loading'}`}></i></button>
+      </div>
+    </>
   );
 }
 
