@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
 function App() {
 
@@ -6,7 +6,7 @@ function App() {
 
   const [isLoading, setIsLoading] = useState(false);
 
-  function getMeme() {
+  const getMeme = useCallback(() => {
     setIsLoading(true);
     fetch('https://meme-api.herokuapp.com/gimme').then((res) => {
       return res.json();
@@ -23,11 +23,11 @@ function App() {
     }).catch((err) => {
       console.error(err);
     })
-  }
+  }, [])
 
   useEffect(() => {
     getMeme();
-  }, [])
+  }, [getMeme])
 
   function handleClick(e) {
     e.target.classList.contains('generate-btn') && getMeme();
